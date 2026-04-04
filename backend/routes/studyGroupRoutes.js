@@ -13,7 +13,7 @@ const { protect } = require('../middleware/authMiddleware');
  
 router.get('/',             protect, getGroups);
 router.get('/my',           protect, getMyGroups);
-router.get('/admin/all',    protect, getAllGroupsAdmin); // admin 라우트는 /:id 보다 앞에
+router.get('/admin/all',    protect, getAllGroupsAdmin);
 router.get('/:id',          protect, getGroupById);
 router.post('/',            protect, createGroup);
 router.put('/:id',          protect, updateGroup);

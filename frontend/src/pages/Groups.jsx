@@ -107,7 +107,7 @@ const Groups = () => {
 
       <hr className="mb-8" />
 
-      {/* Discover Groups 섹션 */}
+      {/* Discover Groups */}
       <div>
         <h2 className="text-xl font-semibold mb-3 text-green-600">
           Discover Groups ({discoverGroups.length})
