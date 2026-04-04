@@ -1,28 +1,62 @@
-name: CI
+# ci.yml - CI/CD Pipeline for Study Group Organizer
+# IFN636 Assessment 1.2 - Jin Young An (N12574422)
+
+name: Backend CI/CD
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  test:
+    name: Run Tests and Deploy
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [22]
+    environment: MONGO_URI
 
-        steps:
-        - name: Checkout code
-            uses: actions/checkout@v2
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-        - name: Set up Node.js
-            uses: actions/setup-node@v2
-            with:
-                node-version: '14'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
 
-        - name: Install dependencies
-            run: npm install
+      - name: Print Env Secret
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: ${{ secrets.PORT }}
+        run: |
+          echo 'MONGO_URI is set'
+          echo 'JWT_SECRET is set'
+          echo 'PORT is set'
 
-        - name: Run tests
-            run: npm test
+      - run: pm2 stop all || true
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: |
+          npm install --global yarn
+          yarn --version
+          yarn install
+
+      - name: Install Frontend Dependencies and Build
+        working-directory: ./frontend
+        run: |
+          df -h
+          sudo rm -rf ./build
+          yarn install
+          yarn run build
+
+      - run: |
+          cd ./backend
+          touch .env
+          echo '${{ secrets.PROD }}' > .env
+
+      - run: pm2 start all || true
+      - run: pm2 restart all || true
