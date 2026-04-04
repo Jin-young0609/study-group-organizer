@@ -1,5 +1,6 @@
 # ci.yml - CI/CD Pipeline for Study Group Organizer
 # IFN636 Assessment 1.2 - Jin Young An (N12574422)
+# Reference: Tutorial Week 5, Phase 2
 
 name: Backend CI/CD
 
@@ -41,17 +42,15 @@ jobs:
       - name: Install Backend Dependencies
         working-directory: ./backend
         run: |
-          npm install --global yarn
-          yarn --version
-          yarn install
+          npm install
 
       - name: Install Frontend Dependencies and Build
         working-directory: ./frontend
         run: |
           df -h
           sudo rm -rf ./build
-          yarn install
-          yarn run build
+          npm install
+          npm run build
 
       - run: |
           cd ./backend
