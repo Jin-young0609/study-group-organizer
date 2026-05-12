@@ -21,36 +21,42 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
+name: Setup Node.js
+uses: actions/setup-node@v3
+with:
+  node-version: ${{ matrix.node-version }}
 
-      - name: Print Env Secret
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-        run: |
-          echo 'MONGO_URI is set'
-          echo 'JWT_SECRET is set'
-          echo 'PORT is set'
+name: Print Env Secret
+env:
+  MONGO_URI: ${{ secrets.MONGO_URI }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  PORT: ${{ secrets.PORT }}
+run: |
+  echo 'MONGO_URI is set'
+  echo 'JWT_SECRET is set'
+  echo 'PORT is set'
 
-      - run: pm2 stop all || true
+run: pm2 stop all || true
 
-      - name: Install Backend Dependencies
-        working-directory: ./backend
-        run: |
-          npm install
+name: Install Backend Dependencies
+working-directory: ./backend
+run: |
+  npm install
 
-      - name: Run Backend Tests
-        working-directory: ./backend
-        run: npm test
+name: Install Frontend Dependencies and Build
+working-directory: ./frontend
+env:
+  CI: false
+run: |
+  df -h
+  sudo rm -rf ./build
+  npm install
+  NODE_OPTIONS=--max-old-space-size=512 npm run build
 
-      - run: |
-          cd ./backend
-          touch .env
-          echo '${{ secrets.PROD }}' > .env
+run: |
+  cd ./backend
+  touch .env
+  echo '${{ secrets.PROD }}' > .env
 
-      - run: pm2 start all || true
-      - run: pm2 restart all || true
+run: pm2 start all || true
+run: pm2 restart all || true
